@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="../../static/css/style.css" />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Create New Quiz</title>
+    <script>
+        function addQuestion() {
+            const newQuestionDiv = document.createElement('div');
+            newQuestionDiv.classList.add('question-group');
+
+            newQuestionDiv.innerHTML = `
+                <div class="form-group">
+                    <label for="question">Question Title:</label>
+                    <input type="text" name="questions[]" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <label for="ideal_answer">Ideal Answer:</label>
+                    <textarea name="ideal_answers[]" class="form-textarea" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="question_score">Score for this Question:</label>
+                    <input type="number" name="question_scores[]" class="form-input question-score" step="0.1" min="0" required oninput="validateTotalScore()">
+                </div>
+                <hr>
+            `;
+
+            document.getElementById('questions-container').appendChild(newQuestionDiv);
+            validateTotalScore();
+        }
+
+        function validateTotalScore() {
+            const maxScore = parseFloat(document.getElementById('max_score').value) || 0;
+            const questionScores = document.querySelectorAll('.question-score');
+            let totalScore = 0;
+
+            questionScores.forEach(input => {
+                totalScore += parseFloat(input.value) || 0;
+            });
+
+            const warning = document.getElementById('score-warning');
+            if (totalScore !== maxScore) {
+                warning.innerText = `⚠️ Total of question scores (${totalScore}) must equal Max Score (${maxScore}).`;
+                warning.style.color = 'red';
+                document.getElementById('submit-btn').disabled = true;
+            } else {
+                warning.innerText = '✅ Scores are correctly distributed.';
+                warning.style.color = 'green';
+                document.getElementById('submit-btn').disabled = false;
+            }
+        }
+    </script>
+    <style>
+        .questions-wrapper {
+            max-height: 400px;
+            overflow-y: auto;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            background-color: #f9f9f9;
+        }
+        .btn-add-question {
+            background-color: #28a745;
+            color: white;
+            padding: 8px 12px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .btn-add-question:hover {
+            background-color: #218838;
+        }
+        #score-warning {
+            font-size: 14px;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <img class="logo" src="../../static/images/new-logo.png" alt="Delta University Logo">
+        <h2>Create a New Quiz</h2>
+
+        <form method="POST" action="{{ url_for('create_quiz') }}">
+            <div class="form-group">
+                <label for="title">Quiz/Essay Title:</label>
+                <input type="text" id="title" name="title" required class="form-input">
+            </div>
+        
+            <div class="form-group">
+                <label for="max_score">Maximum Score:</label>
+                <input type="number" id="max_score" name="max_score" required step="0.1" min="0" class="form-input" oninput="validateTotalScore()">
+            </div>
+
+            <div id="score-warning"></div>
+        
+            <div class="questions-wrapper">
+                <div id="questions-container">
+                    <div class="form-group">
+                        <label for="question">Question Title:</label>
+                        <input type="text" name="questions[]" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="ideal_answer">Ideal Answer:</label>
+                        <textarea name="ideal_answers[]" class="form-textarea" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="question_score">Score for this Question:</label>
+                        <input type="number" name="question_scores[]" class="form-input question-score" step="0.1" min="0" required oninput="validateTotalScore()">
+                    </div>
+                    <hr>
+                </div>
+            </div>
+
+            <button type="button" onclick="addQuestion()" class="btn-add-question">➕ Add Another Question</button>
+
+            <div class="form-group">
+                <button type="submit" id="submit-btn" class="btn-submit" disabled>Create Quiz</button>
+            </div>
+        </form>
+
+        <a href="{{ url_for('professor_dashboard') }}" class="btn">Back to Dashboard</a>
+    </div>
+
+    <div class="footer">
+        <p>Powered by Delta University | All Rights Reserved ©2024</p>
+    </div>
+</body>
+</html>

@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="../../static/css/style.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Professor Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 0;
+        }
+        .dashboard-container {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .logo {
+            width: 150px;
+            display: block;
+            margin: 0 auto 20px;
+        }
+        h2, h3 {
+            text-align: center;
+            color: #333;
+        }
+        .dashboard-options {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            margin: 5px;
+            background-color: #007bff;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+        .btn:hover {
+            background-color: #0056b3;
+        }
+        .quiz-list {
+            list-style: none;
+            padding: 0;
+            margin: 20px 0;
+        }
+        .quiz-list li {
+            background: #007bff;
+            color: #fff;
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.3s;
+            text-align: center;
+        }
+        .quiz-list li:hover {
+            background: #0056b3;
+        }
+        .hidden {
+            display: none;
+        }
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        .table th, .table td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: center;
+        }
+        .table th {
+            background-color: #007bff;
+            color: #fff;
+        }
+        .table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        .table tr:hover {
+            background-color: #f1f1f1;
+        }
+        .footer {
+            text-align: center;
+            padding: 10px;
+            background-color: #333;
+            color: #fff;
+            position: relative;
+            width: 100%;
+            margin-top: 20px;
+        }
+        .badge {
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        .badge-warning {
+            background-color: #ffc107;
+            color: #000;
+        }
+        .badge-info {
+            background-color: #17a2b8;
+            color: #fff;
+        }
+        .badge-success {
+            background-color: #28a745;
+            color: #fff;
+        }
+    </style>
+    <script>
+      function showQuiz(quizId) {
+          document.querySelectorAll('.quiz-results').forEach(div => div.classList.add('hidden'));
+          document.getElementById('quiz-' + quizId).classList.remove('hidden');
+      }
+  
+      function toggleReview(quizId) {
+          let isChecked = document.getElementById(`review-toggle-${quizId}`).checked ? 1 : 0;
+          let timeInput = document.getElementById(`review-time-${quizId}`);
+  
+          // تعطيل إدخال التاريخ إذا تم تفعيل المراجعة يدويًا
+          timeInput.disabled = isChecked;
+          if (isChecked) {
+              timeInput.value = ""; // مسح قيمة التاريخ
+          }
+  
+          fetch("/toggle_review", {
+              method: "POST",
+              headers: { "Content-Type": "application/x-www-form-urlencoded" },
+              body: `essay_id=${quizId}&review_enabled=${isChecked}`
+          })
+          .then(response => response.text())
+          .then(data => alert("Review setting updated!"))
+          .catch(error => console.error("Error:", error));
+      }
+  
+      function setReviewTime(quizId) {
+          let reviewTime = document.getElementById(`review-time-${quizId}`).value;
+          let toggleButton = document.getElementById(`review-toggle-${quizId}`);
+  
+          // تعطيل زر التفعيل اليدوي عند إدخال تاريخ
+          toggleButton.disabled = (reviewTime !== "");
+  
+          fetch("/toggle_review", {
+              method: "POST",
+              headers: { "Content-Type": "application/x-www-form-urlencoded" },
+              body: `essay_id=${quizId}&review_time=${reviewTime}`
+          })
+          .then(response => response.text())
+          .then(data => alert("Review time updated!"))
+          .catch(error => console.error("Error:", error));
+      }
+  
+      function clearReviewTime(quizId) {
+          let timeInput = document.getElementById(`review-time-${quizId}`);
+          let toggleButton = document.getElementById(`review-toggle-${quizId}`);
+  
+          // مسح الوقت وإعادة تمكين زر التفعيل اليدوي
+          timeInput.value = "";
+          timeInput.disabled = false;
+          toggleButton.disabled = false;
+  
+          fetch("/toggle_review", {
+              method: "POST",
+              headers: { "Content-Type": "application/x-www-form-urlencoded" },
+              body: `essay_id=${quizId}&review_time=`
+          })
+          .then(response => response.text())
+          .then(data => alert("Review time cleared!"))
+          .catch(error => console.error("Error:", error));
+      }
+  </script>
+  
+</head>
+<body>
+    <div class="dashboard-container">
+        <img class="logo" src="../../static/images/new-logo.png" alt="Delta University Logo">
+        <h2>Welcome, Professor {{ current_user.username }}!</h2>
+
+        <div class="dashboard-options">
+            <a href="{{ url_for('create_quiz') }}" class="btn">Create Quiz</a>
+            <a href="{{ url_for('logout') }}" class="btn">Logout</a>
+        </div>
+
+        <h3>Your Quizzes</h3>
+        <ul class="quiz-list">
+            {% for quiz in quizzes %}
+                <li onclick="showQuiz(parseInt('{{ quiz.0 }}'))">{{ quiz.1 }}</li>
+            {% endfor %}
+        </ul>
+
+        {% for quiz in quizzes %}
+        <div id="quiz-{{ quiz.0 }}" class="quiz-results hidden">
+            <h3>Submissions for {{ quiz.1 }}</h3>
+            <a href="{{ url_for('download_excel', quiz_id=quiz.0) }}" class="btn">Download Excel Report</a>
+
+            <div style="margin: 10px 0;">
+              <label>Enable Review:</label>
+              <input type="checkbox" id="review-toggle-{{ quiz[0] }}" data-quiz-id="{{ quiz[0] }}"
+                     {% if quiz[2] %}checked{% endif %}
+                     onchange="toggleReview(this.getAttribute('data-quiz-id'))">
+              
+              <span style="margin: 0 15px; font-weight: bold;">OR</span>
+          
+              <label>Auto Enable Time:</label>
+              <input type="datetime-local" id="review-time-{{ quiz[0] }}" data-quiz-id="{{ quiz[0] }}" value="{{ quiz[3] }}"
+                     onchange="setReviewTime(this.getAttribute('data-quiz-id'))">
+              
+              <button onclick="clearReviewTime('{{ quiz[0] }}')" style="margin-left: 10px;">Clear</button>
+          </div>
+          
+          
+
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Student</th>
+                        <th>Score</th>
+                        <th>Evaluation</th>
+                        <th>Grading Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for submission in submissions[quiz.0] %}
+                    <tr>
+                        <td>{{ submission[0] }}</td>
+                        <td>{{ submission[1] }}</td>
+                        <td>{{ submission[2] }}</td>
+                        <td>
+                            <span class="badge badge-{% if submission[4] == 'Graded' %}success{% elif submission[4] == 'Grading' %}info{% else %}warning{% endif %}">
+                                {{ submission[4] }}
+                            </span>
+                        </td>
+                        <td>
+                            <form action="{{ url_for('update_score') }}" method="POST">
+                                <input type="hidden" name="submission_id" value="{{ submission[3] }}">
+                                <input type="number" name="score" min="0" max="100" value="{{ submission[1] }}">
+                                <textarea name="evaluation">{{ submission[2] }}</textarea>
+                                <button type="submit">Update</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endfor %}
+    </div>
+</body>
+</html>

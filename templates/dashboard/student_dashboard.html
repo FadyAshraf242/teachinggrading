@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Student Dashboard</title>
+  <link rel="stylesheet" href="../../static/css/style.css" />
+  <style>
+    .badge {
+      padding: 5px 10px;
+      border-radius: 4px;
+      font-size: 14px;
+      font-weight: bold;
+    }
+    .badge-warning {
+      background-color: #ffc107;
+      color: #000;
+    }
+    .badge-success {
+      background-color: #28a745;
+      color: #fff;
+    }
+    .badge-info {
+      background-color: #17a2b8;
+      color: #fff;
+    }
+    .btn-submit {
+      display: inline-block;
+      padding: 5px 10px;
+      background-color: #007bff;
+      color: #fff;
+      text-decoration: none;
+      border-radius: 4px;
+      transition: background-color 0.3s;
+    }
+    .btn-submit:hover {
+      background-color: #0056b3;
+    }
+    .table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    .table th, .table td {
+      border: 1px solid #ddd;
+      padding: 10px;
+      text-align: center;
+    }
+    .table th {
+      background-color: #007bff;
+      color: #fff;
+    }
+    .table tr:nth-child(even) {
+      background-color: #f9f9f9;
+    }
+    .table tr:hover {
+      background-color: #f1f1f1;
+    }
+    .footer {
+      text-align: center;
+      padding: 10px;
+      background-color: #333;
+      color: #fff;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="dashboard-container">
+    <img class="logo" src="../../static/images/new-logo.png" alt="Delta University Logo" />
+    <h2>Welcome, {{ current_user.username }}!</h2>
+    <div class="dashboard-options">
+      <a href="{{ url_for('logout') }}" class="btn">Logout</a>
+    </div>
+    <h3>Your Essay Submissions</h3>
+
+    <!-- Table to display available essays for submission -->
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Essay ID</th>
+          <th>Title</th>
+          <th>Description</th>
+          <th>Status</th>
+          <th>Grading Status</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% if essays %}
+          {% for essay in essays %}
+            <tr>
+              <td>{{ essay[0] }}</td> <!-- essay_id -->
+              <td>{{ essay[1] }}</td> <!-- title -->
+              <td>
+                {% if essay[2] == 'Submitted' %}
+                  <span class="badge badge-success">Submitted</span>
+                {% else %}
+                  <span class="badge badge-warning">Not Submitted</span>
+                {% endif %}
+              </td> <!-- description -->
+              <td>
+                {% if essay[2] == 'Submitted' %}
+                  <span class="badge badge-success">Submitted</span>
+                {% else %}
+                  <span class="badge badge-warning">Not Submitted</span>
+                {% endif %}
+              </td> <!-- status -->
+              <td>
+                {% if essay[3] == 'Not Graded' %}
+                  <span class="badge badge-warning">Not Graded</span>
+                {% elif essay[3] == 'Grading' %}
+                  <span class="badge badge-info">Grading in Progress...</span>
+                {% elif essay[3] == 'Graded' %}
+                  <span class="badge badge-success">Graded</span>
+                {% endif %}
+              </td> <!-- grading_status -->
+              <td>
+                {% if essay[2] == 'Submitted' %}
+                  <a href="{{ url_for('review_essay', essay_id=essay[0]) }}" class="btn-submit">View Essay</a>
+                {% else %}
+                  <a href="{{ url_for('submit_essay', essay_id=essay[0]) }}" class="btn-submit">Submit Essay</a>
+                {% endif %}
+              </td> <!-- action -->
+            </tr>
+          {% endfor %}
+        {% else %}
+          <tr>
+            <td colspan="6">No essays available or all essays have been submitted.</td>
+          </tr>
+        {% endif %}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Footer Section -->
+  <div class="footer">
+    <p>Powered by Delta University | All Rights Reserved ©2024</p>
+  </div>
+</body>
+</html>

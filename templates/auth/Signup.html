@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <link rel="stylesheet" href="../../static/css/style.css" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet" />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sign Up</title>
+  </head>
+  <body>
+    <div class="signup-container">
+      <img class="logo" src="../../static/images/new-logo.png" alt="Delta University Logo">
+      <h2>Create an Account</h2>
+
+      <!-- Sign Up Form -->
+      <form method="POST">
+        <!-- Username, Email, and Password Fields -->
+        <input class="input-field" type="text" name="username" placeholder="Username" required />
+        <input class="input-field" type="email" name="email" placeholder="Email" required />
+        <input class="input-field" type="password" name="password" placeholder="Password" required />
+        <input class="input-field" type="password" name="confirm_password" placeholder="Confirm Password" required />
+
+        <div class="user-type-selection">
+          <label for="user_type">Select Role:</label>
+          <select name="user_type" id="role" required>
+            <option value="student" selected>Student</option>
+            <option value="professor">Professor</option>
+          </select>
+        </div>
+
+        <!-- Secret Code Field for Professors -->
+        <div id="secret-code-section" class="hidden">
+          <input class="input-field" type="text" name="secret_code" placeholder="Enter Secret Code" />
+        </div>
+
+        <!-- Submit Button -->
+        <button type="submit" class="signup-button">Sign Up</button>
+      </form>
+
+    </div>
+    <div class="footer">
+      <p>Powered by Delta University | All Rights Reserved ©2024</p>
+    </div>
+
+    <script>
+      // Show/Hide the Secret Code field based on User Type selection
+      const userTypeSelect = document.getElementById("role");
+      const secretCodeSection = document.getElementById("secret-code-section");
+  
+      userTypeSelect.addEventListener("change", function() {
+        if (userTypeSelect.value === "professor") {
+          secretCodeSection.classList.remove("hidden"); // Show secret code
+        } else {
+          secretCodeSection.classList.add("hidden"); // Hide secret code
+        }
+      });
+    </script>
+  </body>
+</html>

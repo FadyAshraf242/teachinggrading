@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <link rel="stylesheet" href="../../static/css/style.css" />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Create New Quiz</title>
+  </head>
+  <body>
+    <div class="dashboard-container">
+      <img class="logo" src="../../static/images/new-logo.png" alt="Delta University Logo">
+      <h2>Create a New Quiz</h2>
+
+      <!-- Form to create a new quiz -->
+      <form method="POST" action="{{ url_for('create_quiz') }}">
+        <div class="form-group">
+            <label for="title">Quiz/Essay Title:</label>
+            <input type="text" id="title" name="title" required class="form-input">
+        </div>
+    
+        <div class="form-group">
+            <label for="max_score">Maximum Score:</label>
+            <input type="number" id="max_score" name="max_score" required step="0.1" min="0" class="form-input">
+        </div>
+    
+        <div class="form-group">
+            <label for="instructions">Instructions:</label>
+            <textarea id="instructions" name="instructions" required class="form-textarea"></textarea>
+        </div>
+    
+        <div class="form-group">
+            <label for="ideal_answer">Ideal Answer:</label>
+            <textarea id="ideal_answer" name="ideal_answer" required class="form-textarea"></textarea>
+        </div>
+    
+        <!-- Submit Button -->
+        <div class="form-group">
+            <button type="submit" class="btn-submit">Create Quiz</button>
+        </div>
+    </form>
+
+      <!-- Back to Dashboard Button -->
+      <a href="{{ url_for('professor_dashboard') }}" class="btn">Back to Dashboard</a>
+    </div>
+
+    <!-- Footer Section -->
+    <div class="footer">
+      <p>Powered by Delta University | All Rights Reserved ©2024</p>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="../../static/css/style.css" />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Submit Essay</title>
+
+    <style>
+        /* تحسين تنسيق الصفحة */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+
+        .submit-essay-container {
+            max-width: 800px;
+            margin: 20px auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .logo {
+            display: block;
+            margin: 0 auto;
+            max-width: 150px;
+        }
+
+        h2 {
+            text-align: center;
+            color: #333;
+        }
+
+        /* تحسين صندوق الأسئلة وإضافة تمرير */
+        #questions-container {
+            max-height: 400px; /* تحديد ارتفاع بحيث يتم التمرير عند تعدد الأسئلة */
+            overflow-y: auto;
+            padding: 10px;
+            border: 1px solid #ddd;
+            background: #fff;
+            border-radius: 5px;
+        }
+
+        .question-block {
+            padding: 15px;
+            background: #fafafa;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-bottom: 15px;
+        }
+
+        .question-block h3 {
+            margin: 0;
+            color: #444;
+        }
+
+        .question-block p {
+            color: #222;
+            font-weight: bold;
+        }
+
+        .answer-selection {
+            margin: 10px 0;
+        }
+
+        .answer-selection label {
+            display: inline-block;
+            padding: 5px 10px;
+            background: #eee;
+            border-radius: 5px;
+            margin-right: 10px;
+            cursor: pointer;
+        }
+
+        /* تحسين شكل الأزرار */
+        .submit-button {
+            text-align: center;
+            margin-top: 15px;
+        }
+
+        .submit-button button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .submit-button button:hover {
+            background: #0056b3;
+        }
+
+        /* تحسين شكل النصوص والصور */
+        textarea {
+            width: 100%;
+            min-height: 80px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        input[type="file"] {
+            display: block;
+            margin-top: 10px;
+        }
+
+        .image-preview img {
+            max-width: 100%;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+
+        /* تحسين الفوتر */
+        .footer {
+            text-align: center;
+            padding: 10px;
+            margin-top: 20px;
+            background: #ddd;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="submit-essay-container">
+        <img class="logo" src="../../static/images/new-logo.png" alt="Delta University Logo">
+        <h2>Answer the Questions</h2>
+
+        {% if essays %}
+            <p>You have already submitted this essay. You cannot submit another one.</p>
+            <a href="{{ url_for('student_dashboard') }}" class="btn-back">Back to Dashboard</a>
+        {% else %}
+            <form method="POST" enctype="multipart/form-data">
+                <div id="questions-container">
+                    {% for question in questions %}
+                        <div class="question-block">
+                            <h3>Question {{ loop.index }}:</h3>
+                            <p>{{ question.question_text }}</p>
+
+                            <div class="answer-selection">
+                                <label>
+                                    <input type="radio" name="answer_type_{{ question.id }}" value="text" checked onchange="toggleInput('{{ question.id }}')">
+                                    Text
+                                </label>
+                                <label>
+                                    <input type="radio" name="answer_type_{{ question.id }}" value="image" onchange="toggleInput('{{ question.id }}')">
+                                    Image
+                                </label>
+                            </div>
+
+                            <!-- Text Answer Field -->
+                            <div id="text-answer-{{ question.id }}">
+                                <textarea name="answers[]" placeholder="Write your answer here..." required></textarea>
+                            </div>
+
+                            <!-- Image Upload Field -->
+                            <div id="image-answer-{{ question.id }}" style="display: none;">
+                                <input type="file" name="image_answers[]" accept="image/*" class="image-upload" onchange="uploadImageAndExtractText(event, '{{ question.id }}')">
+                                <div class="image-preview" id="image-preview-{{ question.id }}" style="display: none;">
+                                    <h4>Image Preview:</h4>
+                                    <img src="" alt="Image Preview" class="preview-image">
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+
+                <div class="submit-button">
+                    <button type="submit" name="submission_action" value="submit_answers">Submit Answers</button>
+                </div>
+            </form>
+        {% endif %}
+    </div>
+
+    <div class="footer">
+        <p>Powered by Delta University | All Rights Reserved ©2024</p>
+    </div>
+
+    <script>
+        function toggleInput(questionId) {
+            let textAnswer = document.getElementById("text-answer-" + questionId);
+            let imageAnswer = document.getElementById("image-answer-" + questionId);
+
+            let textRadio = document.querySelector('input[name="answer_type_' + questionId + '"][value="text"]');
+            if (textRadio.checked) {
+                textAnswer.style.display = "block";
+                imageAnswer.style.display = "none";
+            } else {
+                textAnswer.style.display = "none";
+                imageAnswer.style.display = "block";
+            }
+        }
+
+        function uploadImageAndExtractText(event, questionId) {
+            const input = event.target;
+            const previewContainer = document.getElementById("image-preview-" + questionId);
+            const previewImage = previewContainer.querySelector(".preview-image");
+            const textAnswer = document.querySelector(`#text-answer-${questionId} textarea`);
+
+            if (input.files && input.files[0]) {
+                const file = input.files[0];
+                const formData = new FormData();
+                formData.append("file", file);
+
+                // عرض معاينة الصورة
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    previewImage.src = e.target.result;
+                    previewContainer.style.display = "block";
+                };
+                reader.readAsDataURL(file);
+
+                // إرسال الصورة إلى الباك إند لاستخراج النص
+                fetch("/upload_ocr", {
+                    method: "POST",
+                    body: formData,
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.extracted_text) {
+                        // عرض النص المستخرج في حقل النص
+                        textAnswer.value = data.extracted_text;
+
+                        // التبديل إلى خانة النص
+                        document.querySelector(`input[name="answer_type_${questionId}"][value="text"]`).click();
+                    } else {
+                        alert("Failed to extract text from the image.");
+                    }
+                })
+                .catch(error => {
+                    console.error("Error:", error);
+                    alert("An error occurred while processing the image.");
+                });
+            } else {
+                previewImage.src = "";
+                previewContainer.style.display = "none";
+            }
+        }
+    </script>
+
+</body>
+</html>

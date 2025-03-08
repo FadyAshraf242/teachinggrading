@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <link rel="stylesheet" href="../../static/css/style.css" />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Essay Result</title>
+  </head>
+  <body>
+    <div class="result-container">
+      <img class="logo" src="../../static/images/new-logo.png" alt="Delta University Logo">
+      <h2>Your Essay Score</h2>
+      <p>Your essay has been evaluated successfully!</p>
+      <h3>Score: {{ score }}</h3> <!-- Display the scaled score here -->
+      <a href="{{ url_for('student_dashboard') }}" class="btn-back">Back to Dashboard</a>
+    </div>
+
+    <div class="footer">
+      <p>Powered by Delta University | All Rights Reserved ©2024</p>
+    </div>
+  </body>
+</html>

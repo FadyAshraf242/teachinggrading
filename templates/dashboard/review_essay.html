@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Review Essay</title>
+    <link rel="stylesheet" href="../../static/css/style.css">
+    <style>
+        body {
+            background-color: #f4f4f4;
+            color: #000;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        h2, h3, p {
+            color: #000;
+        }
+
+        .badge {
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: bold;
+            display: inline-block;
+        }
+
+        .badge-warning { background-color: #ffc107; color: #000; }
+        .badge-success { background-color: #28a745; color: #fff; }
+        .badge-info { background-color: #17a2b8; color: #fff; }
+
+        /* صندوق الأسئلة والإجابات مع التمرير */
+        .qa-container {
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 10px;
+            background: #f9f9f9;
+        }
+
+        .question-box {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+            margin-bottom: 10px;
+        }
+
+        .question-text {
+            font-weight: bold;
+            color: #333;
+        }
+
+        .answer-box {
+            margin-top: 5px;
+            padding: 8px;
+            background: #fff;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+
+        .back-btn {
+            display: block;
+            margin-top: 20px;
+            padding: 10px 20px;
+            background: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            text-align: center;
+        }
+
+        .back-btn:hover { background: #0056b3; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>Review Essay</h2>
+
+        <p><strong>Submission Date:</strong> {{ essay_details.submission_date }}</p>
+        <p><strong>Status:</strong> 
+            {% if essay_details.grading_status == 'Grading' %}
+                <span class="badge badge-info">Grading in Progress...</span>
+            {% elif essay_details.grading_status == 'Graded' %}
+                <span class="badge badge-success">Graded</span>
+            {% else %}
+                <span class="badge badge-warning">Not Graded</span>
+            {% endif %}
+        </p>
+
+        {% if essay_details.grading_status == 'Graded' %}
+            <p><strong>Score:</strong> {{ essay_details.score }}/{{ essay_details.max_score }}</p>
+            <p><strong>Evaluation:</strong> {{ essay_details.evaluation }}</p>
+        {% endif %}
+
+        <h3>Your Answers:</h3>
+        <div class="qa-container">
+            {% for qa in essay_details.questions_with_answers %}
+                <div class="question-box">
+                    <p class="question-text">Q{{ loop.index }}: {{ qa.question }}</p>
+                    <div class="answer-box">
+                        <p>{{ qa.answer }}</p>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+        <a href="{{ url_for('student_dashboard') }}" class="back-btn">Back to Dashboard</a>
+    </div>
+
+</body>
+</html>

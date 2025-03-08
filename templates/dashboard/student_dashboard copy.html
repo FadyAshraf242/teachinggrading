@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Student Dashboard</title>
+  <link rel="stylesheet" href="../../static/css/style.css" />
+</head>
+<body>
+  <div class="dashboard-container">
+    <img class="logo" src="../../static/images/new-logo.png" alt="Delta University Logo" />
+    <h2>Welcome, {{ current_user.username }}!</h2>
+    <div class="dashboard-options">
+      <a href="{{ url_for('logout') }}" class="btn">Logout</a>
+    </div>
+    <h3>Your Essay Submissions</h3>
+
+    <!-- Table to display available essays for submission -->
+    <table class="table">
+        <thead>
+          <tr>
+            <th>Essay ID</th>
+            <th>Title</th>
+            <th>Description</th>
+            <th>Status</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% if essays %}
+            {% for essay in essays %}
+              <tr>
+                <td>{{ essay[0] }}</td> <!-- essay_id -->
+                <td>{{ essay[1] }}</td> <!-- title -->
+                <td>{{ essay[2] }}</td> <!-- instructions or score -->
+                <td>
+                  {% if essay[3] == 'Not Submitted' or essay[3] is none %}
+                    <span class="badge badge-warning">Not Submitted</span>
+                  {% else %}
+                    <span class="badge badge-success">Submitted</span>
+                  {% endif %}
+                </td>
+                <td>
+                  {% if essay[3] and essay[3] == 'Submitted' %}
+                    <a href="{{ url_for('review_essay', essay_id=essay[0]) }}" class="btn-submit">Review Submitted Quiz</a>
+                  {% else %}
+                    <a href="{{ url_for('submit_essay', essay_id=essay[0]) }}" class="btn-submit">Submit Essay</a>
+                  {% endif %}
+                </td>
+                
+              </tr>
+            {% endfor %}
+          {% else %}
+            <tr>
+              <td colspan="5">No essays available or all essays have been submitted.</td>
+            </tr>
+          {% endif %}
+        </tbody>
+      </table>
+      
+      
+  </div>
+
+  <!-- Footer Section -->
+  <div class="footer">
+    <p>Powered by Delta University | All Rights Reserved ©2024</p>
+  </div>
+</body>
+</html>

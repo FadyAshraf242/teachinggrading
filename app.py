@@ -653,7 +653,7 @@ def review_essay(essay_id):
 def logout():
     logout_user()
     flash("You have been logged out.", "info")
-    return redirect(url_for("home"))
+    return redirect(url_for("home"))    
 if __name__ == "__main__":
     init_db()
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=8080)

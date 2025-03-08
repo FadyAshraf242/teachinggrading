@@ -18,6 +18,9 @@ from flask import send_file
 from openpyxl import Workbook
 from openpyxl.styles import Alignment
 from docx import Document
+import threading
+import time
+import random
 app = Flask(__name__)
 app.secret_key = "Delta_U_X"
 bcrypt = Bcrypt(app)
@@ -373,7 +376,6 @@ def student_dashboard():
         print("Database error:", e)
         available_essays = []
     return render_template("dashboard/student_dashboard.html", essays=available_essays)
-import threading
 def submit_essay_background(essay_id, user_id, answers, image_files):
     with sqlite3.connect("database.db") as conn:
         cursor = conn.cursor()
@@ -468,9 +470,6 @@ def upload_ocr():
         os.remove(file_path)
         return jsonify({"extracted_text": extracted_text})
     return jsonify({"error": "Invalid file format"}), 400
-import threading
-import time
-import random
 GEMINI_API_KEYS = [
     "AIzaSyAjiN6AKNgdTqyb26Wvb4RPO31mX5pO-7M"
 ]
@@ -656,4 +655,4 @@ def logout():
     return redirect(url_for("home"))    
 if __name__ == "__main__":
     init_db()
-    app.run(host='0.0.0.0', port=8080)
+    app.run(host='0.0.0.0', port=8080, debug=True)
